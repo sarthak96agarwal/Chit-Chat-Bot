@@ -50,19 +50,26 @@ add_special_tokens_(model, tokenizer)
 logger.info("Sample a personality")
 dataset = torch.load(args.dataset_cache)
 personalities = [dialog["personality"] for dataset in dataset.values() for dialog in dataset]
-personality = random.choice(personalities)
-logger.info("Selected personality: %s", tokenizer.decode(chain(*personality)))
-
+personality = None
 history = []
 
 app = Flask(__name__)
 
 @app.route("/")
-def home():    
-    return render_template("home.html")
+def home():
+    global personality
+    personality = random.choice(personalities)
+    pars_text = tokenizer.decode(chain(*personality)).split('. ')
+    pers_text = '. '.join([i.capitalize() for i in pars_text])
+    
+
+    logger.info("Selected personality: %s", pers_text)
+
+    return render_template("home.html", data = pers_text)
 @app.route("/get")
 def get_bot_response():
     global history
+    global personality
     userText = request.args.get('msg')
     history.append(tokenizer.encode(userText))
     with torch.no_grad():
