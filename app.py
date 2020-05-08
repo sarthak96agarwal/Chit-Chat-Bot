@@ -60,7 +60,8 @@ def home():
 @app.route("/get")
 def get_bot_response():
     global current_history
-    userText = request.args.get('msg') 
+    userText = request.args.get('msg')
+    print(userText)
     current_history += '\n'+userText  
     inputs = RETOK.findall(current_history)
     test_batch = {
@@ -79,4 +80,4 @@ def get_bot_response():
     current_history += '\n' + output_string
     return output_string
 if __name__ == "__main__":    
-    app.run()
+    app.run(port = 1024, host='0.0.0.0', debug=True)
