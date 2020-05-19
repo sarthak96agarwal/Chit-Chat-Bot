@@ -1,0 +1,33 @@
+FROM ubuntu:18.04
+
+
+########################################  BASE SYSTEM
+# set noninteractive installation
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y apt-utils
+RUN apt-get install -y --no-install-recommends \
+    build-essential \
+    pkg-config \
+    tzdata \
+    curl
+
+######################################## PYTHON3
+RUN apt-get install -y \
+    python3 \
+    python3-pip
+
+# set local timezone
+RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata
+
+# transfer-learning-conv-ai
+ENV PYTHONPATH /usr/local/lib/python3.6 
+COPY . ./
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install -r /tmp/requirements.txt
+
+# unblock port 1024 for the Flask app to run on
+EXPOSE 1024
+
+# execute the Flask app
+CMD ["python3", "app.py"]
